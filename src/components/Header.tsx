@@ -3,44 +3,79 @@ import Head from "next/head";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Link from "next/link";
 import { Menu, Transition } from "@headlessui/react";
-import { useAccount, useDisconnect } from "wagmi";
+import { useAccount, useDisconnect, useSigner } from "wagmi";
+import { switchNetwork, getNetwork } from "@wagmi/core";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import * as PushAPI from "@pushprotocol/restapi";
+import { goerli, optimismGoerli } from "wagmi/chains";
+import { FaCircleNotch } from "react-icons/fa";
+import { createSocketConnection, EVENTS } from "@pushprotocol/socket";
+import { ENV } from "../constants";
+import { TypedDataSigner } from "@ethersproject/abstract-signer";
+
+interface Signer extends TypedDataSigner {
+  // Add missing _signTypedData property
+  _signTypedData(domain: any, types: any, value: any): Promise<string>;
+}
 
 export function Header() {
   const router = useRouter();
+  const { data: signer, status } = useSigner();
   const { address, isConnected } = useAccount();
   const [userId, setUserId] = useState("");
   const { disconnect } = useDisconnect();
-  const [unreadCount, setUnreadCount] = useState(2);
+  const [statusText, setStatusText] = useState(
+    "Switching network to Goerli..."
+  );
+  const [showSwitchModal, setShowSwitchModal] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: "New message",
-      description: "You have a new message from John Doe.",
-      time: "1 minute ago",
-    },
-    {
-      id: 2,
-      title: "New friend request",
-      description: "You have a friend request from Jane Smith.",
-      time: "2 hours ago",
-    },
-  ]);
+  const [notifications, setNotifications] = useState<any[]>([]);
+
+  const pushSDKSocket = createSocketConnection({
+    user: "eip155:5:" + address, // CAIP-10 format
+    env: ENV.STAGING,
+    socketOptions: { autoConnect: false },
+  });
+
+  pushSDKSocket?.on(EVENTS.CONNECT, () => {
+    console.log("Push connected");
+  });
+
+  pushSDKSocket?.on(EVENTS.DISCONNECT, (err) =>
+    console.log("Push error:", err)
+  );
+
+  pushSDKSocket?.on(EVENTS.USER_FEEDS, ({ payload }) => {
+    let temp = notifications;
+    let count = unreadCount;
+    temp.push({
+      sid: payload.data.sid,
+      notification: payload.notification,
+      message: payload.data.amsg,
+    });
+    setUnreadCount(count + 1);
+    setNotifications(temp);
+  });
 
   const fetchNotifs = async () => {
-    const notifications = await PushAPI.user.getFeeds({
-      user: "eip155:42:" + address,
+    const res = await PushAPI.user.getFeeds({
+      user: "eip155:5:" + address,
+      env: ENV.STAGING,
     });
-
-    console.log("Notifications: \n", notifications);
+    setUnreadCount(res.length);
+    setNotifications(res);
   };
 
   const handleNotificationClick = () => {
     setUnreadCount(0);
     setShowNotifications(true);
+  };
+
+  const handleNotificationClose = () => {
+    setUnreadCount(0);
+    setShowNotifications(false);
   };
 
   const handleNotificationClear = () => {
@@ -59,6 +94,7 @@ export function Header() {
     if (isConnected) {
       console.log("Connected:", address);
       fetchNotifs();
+      pushSDKSocket?.connect();
 
       fetch(`/api/user/${address}`, {
         method: "GET",
@@ -86,6 +122,49 @@ export function Header() {
       }
     }
   }, [isConnected]);
+
+  useEffect(() => {
+    if (status === "success") {
+      async function subscribe() {
+        if (getNetwork().chain?.id === goerli.id) {
+        } else {
+          setStatusText("Switching network to Goerli...");
+          setShowSwitchModal(true);
+          const switchToGoerli = await switchNetwork({
+            chainId: goerli.id,
+          });
+        }
+        setStatusText("Subscribe to push notifications...");
+        const mySigner: Signer = signer as unknown as Signer;
+        await PushAPI.channels.subscribe({
+          signer: mySigner,
+          channelAddress: "eip155:5:0x1576E5438dC297d1923F142f1eF95B137bC8FE8A",
+          userAddress: "eip155:5:" + address,
+          onSuccess: async () => {
+            setStatusText("Switching network to OptimismGoerli");
+            Cookies.set("optInPush", "true");
+            await switchNetwork({
+              chainId: optimismGoerli.id,
+            });
+            setStatusText("Subscribed successfully");
+            setTimeout(() => {
+              setShowSwitchModal(false);
+            }, 2000);
+          },
+          onError: (err) => {
+            console.error("opt in error:", err.message);
+            setShowSwitchModal(false);
+            setStatusText("Error switching network to Goerli");
+          },
+          env: ENV.STAGING,
+        });
+      }
+      const optInPush = Cookies.get("optInPush");
+      if (optInPush === undefined) {
+        subscribe();
+      }
+    }
+  }, [status]);
 
   return (
     <header>
@@ -122,7 +201,7 @@ export function Header() {
                 <>
                   <div
                     className="fixed inset-0  transition-opacity"
-                    onClick={handleNotificationClear}
+                    onClick={handleNotificationClose}
                   ></div>
                   <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg overflow-hidden z-10">
                     <div className="p-4 border-b">
@@ -136,16 +215,14 @@ export function Header() {
                     {notifications.length > 0 && (
                       <ul>
                         {notifications.map((notification) => (
-                          <li key={notification.id}>
+                          <li key={notification.sid}>
                             <div className="px-4 py-2 border-b">
                               <h3 className="text-lg font-bold text-gray-800">
-                                {notification.title}
+                                {notification.notification.title}{" "}
+                                {notification.notification.body}
                               </h3>
                               <p className="text-sm text-gray-600">
-                                {notification.description}
-                              </p>
-                              <p className="text-xs text-gray-400 mt-1">
-                                {notification.time}
+                                {notification.message}
                               </p>
                             </div>
                           </li>
@@ -359,6 +436,17 @@ export function Header() {
           </div>
         </div>
       </nav>
+      {showSwitchModal && (
+        <>
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 z-40" />
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 justify-center items-center z-50">
+            <div className="flex items-center bg-white p-8 rounded-lg z-60">
+              <FaCircleNotch className="animate-spin text-4xl mr-4" />
+              <span className="italic">{statusText}</span>
+            </div>
+          </div>
+        </>
+      )}
     </header>
   );
 }

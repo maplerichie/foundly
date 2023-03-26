@@ -49,3 +49,5 @@ public/items/*
 public/proofs/*
 
 .env.development
+
+test.js

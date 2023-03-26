@@ -4,7 +4,7 @@ import { optimismGoerli, optimism } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 
 const { chains, provider, webSocketProvider } = configureChains(
-  [process.env.NODE_ENV === "development" ? optimismGoerli : optimism],
+  [optimismGoerli],
   [publicProvider()]
 );
 

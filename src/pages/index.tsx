@@ -70,7 +70,7 @@ function Page() {
           </div>
         </section>
 
-        <section className="featured-items-section py-16 lg:py-24">
+        {/* <section className="featured-items-section py-16 lg:py-24">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl lg:text-5xl font-bold mb-8 text-center">
               Featured Items
@@ -224,7 +224,7 @@ function Page() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
         <section className="about-section py-16 lg:py-24">
           <div className="container mx-auto px-4">

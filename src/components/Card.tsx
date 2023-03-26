@@ -3,7 +3,7 @@ import Image from "next/image";
 import moment from "moment-timezone";
 import { use, useState } from "react";
 import Cookies from "js-cookie";
-import { prepareWriteContract, writeContract } from "@wagmi/core";
+import { prepareWriteContract, writeContract, fetchBalance } from "@wagmi/core";
 import {
   publicDb,
   publicFound,
@@ -24,6 +24,7 @@ import { FaCircleNotch } from "react-icons/fa";
 import { toSvg } from "jdenticon";
 import { utils } from "ethers";
 import { createKey, createValue } from "../helpers/atst";
+import { useAccount } from "wagmi";
 
 interface Props {
   item: any;
@@ -42,6 +43,27 @@ export const Card = ({ item, type }: Props) => {
   const [matcher, setMatcher] = useState<any>({});
   const [proofId, setProofId] = useState("");
   const [statusText, setStatusText] = useState("");
+  const { address } = useAccount();
+  const [faucetLoading, setFaucetLoading] = useState(false);
+
+  const callFaucet = async () => {
+    setFaucetLoading(true);
+    try {
+      const prepareTx = await prepareWriteContract({
+        address: APE_ADDR,
+        abi: ERC20_ABI,
+        functionName: "mintTo",
+        args: [address],
+      });
+      const tx = await writeContract(prepareTx);
+      tx.wait().then(async (receipt) => {
+        setFaucetLoading(false);
+      });
+    } catch (error: any) {
+      setProofError("Failed to call faucet. Please try again later.");
+      setFaucetLoading(false);
+    }
+  };
 
   const handleShowItemModal = () => {
     setItemError("");
@@ -152,10 +174,20 @@ export const Card = ({ item, type }: Props) => {
     event.preventDefault();
     const amount = event.target.amount.value;
     let rewardAmount = 0;
+
     if (amount) {
       rewardAmount = parseFloat(amount);
       if (isNaN(rewardAmount) || rewardAmount <= 0) {
         setProofError("Please enter a valid amount");
+        return;
+      }
+      let obj: any = {
+        address: address,
+        token: APE_ADDR,
+      };
+      const apeBalance = await fetchBalance(obj);
+      if (rewardAmount > parseFloat(apeBalance.formatted)) {
+        setProofError("You don't have enough APE to reward");
         return;
       }
     }
@@ -473,8 +505,16 @@ export const Card = ({ item, type }: Props) => {
                       height={24}
                     />
                   </div>
-                  <span className="italic text-sm text-gray-400 text-right">
-                    Optional
+                  <span className="italic flex text-sm text-gray-400 justify-between">
+                    <button
+                      className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2 mr-4"
+                      disabled={faucetLoading}
+                      type="button"
+                      onClick={callFaucet}
+                    >
+                      {faucetLoading ? "Dispensing..." : "Faucet!"}
+                    </button>
+                    <span>Optional</span>
                   </span>
                 </div>
                 {proofError && (

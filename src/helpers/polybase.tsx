@@ -43,14 +43,12 @@ export async function symmetricDecryptString(
   return str;
 }
 
-// export const db = new Polybase({
-//   defaultNamespace:
-//     "pk/0xc1b4da6cfe5a00b2d5c9f275e85d18b689ccfc3bdb318956617404b8a1d4b74b61c25d6d0975b0ff60664843a8c4cb7f51b42d39583f35e338d363da1c0eb44c/foundly",
-// });
+const namespace =
+  "pk/0xd6e3e92d63e82f2bd33960a842c7804eafa73e0be38d5e0b79e0f8a96919c657a62c3687af5fa824afdc4b3da80c3df38c64de5c473f82bf8eb80090a06483a4/testnet";
+// const namespace = "pk/0xd6e3e92d63e82f2bd33960a842c7804eafa73e0be38d5e0b79e0f8a96919c657a62c3687af5fa824afdc4b3da80c3df38c64de5c473f82bf8eb80090a06483a4/Foundly"
 
 export const db = new Polybase({
-  defaultNamespace:
-    "pk/0xd6e3e92d63e82f2bd33960a842c7804eafa73e0be38d5e0b79e0f8a96919c657a62c3687af5fa824afdc4b3da80c3df38c64de5c473f82bf8eb80090a06483a4/testnet",
+  defaultNamespace: namespace,
   signer: (data) => {
     return {
       h: "eth-personal-sign",
@@ -66,8 +64,7 @@ export const foundDb = db.collection("Found");
 export const userDb = db.collection("User");
 
 export const publicDb = new Polybase({
-  defaultNamespace:
-    "pk/0xd6e3e92d63e82f2bd33960a842c7804eafa73e0be38d5e0b79e0f8a96919c657a62c3687af5fa824afdc4b3da80c3df38c64de5c473f82bf8eb80090a06483a4/testnet",
+  defaultNamespace: namespace,
 });
 
 export const publicUser = publicDb.collection("User");

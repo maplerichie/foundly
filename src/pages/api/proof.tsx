@@ -1,6 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import formidable from "formidable";
 import fs from "fs";
+import { sendNotification } from "../../helpers/push";
+import { decryptWithAES } from "../../helpers/crypto";
 
 export const config = {
   api: {
@@ -32,6 +34,14 @@ export default async function handler(
       return;
     }
     const { itemId, owner, proofId } = fields;
+
+    const to = decryptWithAES(String(owner));
+    await sendNotification(
+      "You have a new proof!",
+      "New Proof",
+      "You have a new proof!",
+      to
+    );
     fs.rename(files.image.filepath, "./public/proofs/" + proofId, (error) => {
       if (error) {
         console.log(`Proof rename error:`, error);

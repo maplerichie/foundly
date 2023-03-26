@@ -7,7 +7,7 @@ export const ERC20_ABI = [
   "function decimals() view returns (uint8)",
   "function decreaseAllowance(address,uint256) returns (bool)",
   "function increaseAllowance(address,uint256) returns (bool)",
-  "function mint(address,uint256)",
+  "function mintTo(address)",
   "function name() view returns (string)",
   "function symbol() view returns (string)",
   "function totalSupply() view returns (uint256)",
@@ -15,7 +15,7 @@ export const ERC20_ABI = [
   "function transferFrom(address,address,uint256) returns (bool)",
 ];
 
-export const APE_ADDR = "0x0A572a0aAAf39a201666dCE27328CE17bBCd8e28";
+export const APE_ADDR = "0x10FCb2c42686abb402ee72293f6DD8a8e5d605a1";
 
 export const FOUNDLY_ABI = [
   {
@@ -280,7 +280,14 @@ collection User {
     this.linkedin.id = id;
     this.linkedin.username = username;
   }
-}`;
+}
+`;
+
+export enum ENV {
+  PROD = "prod",
+  STAGING = "staging",
+  DEV = "dev",
+}
 
 export const ATST_ABI = [
   { stateMutability: "nonpayable", type: "constructor", inputs: [] },
