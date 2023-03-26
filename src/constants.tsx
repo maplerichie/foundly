@@ -1,18 +1,18 @@
 export const ERC20_ABI = [
   "event Approval(address indexed,address indexed,uint256)",
   "event Transfer(address indexed,address indexed,uint256)",
-  "function allowance(address,address) view returns (uint256) @29000000",
-  "function approve(address,uint256) returns (bool) @29000000",
-  "function balanceOf(address) view returns (uint256) @29000000",
-  "function decimals() view returns (uint8) @29000000",
-  "function decreaseAllowance(address,uint256) returns (bool) @29000000",
-  "function increaseAllowance(address,uint256) returns (bool) @29000000",
-  "function mint(address,uint256) @29000000",
-  "function name() view returns (string) @29000000",
-  "function symbol() view returns (string) @29000000",
-  "function totalSupply() view returns (uint256) @29000000",
-  "function transfer(address,uint256) returns (bool) @29000000",
-  "function transferFrom(address,address,uint256) returns (bool) @29000000",
+  "function allowance(address,address) view returns (uint256)",
+  "function approve(address,uint256) returns (bool)",
+  "function balanceOf(address) view returns (uint256)",
+  "function decimals() view returns (uint8)",
+  "function decreaseAllowance(address,uint256) returns (bool)",
+  "function increaseAllowance(address,uint256) returns (bool)",
+  "function mint(address,uint256)",
+  "function name() view returns (string)",
+  "function symbol() view returns (string)",
+  "function totalSupply() view returns (uint256)",
+  "function transfer(address,uint256) returns (bool)",
+  "function transferFrom(address,address,uint256) returns (bool)",
 ];
 
 export const APE_ADDR = "0x0A572a0aAAf39a201666dCE27328CE17bBCd8e28";
@@ -120,7 +120,7 @@ collection Lost {
   category:string;
   date: number;
   location: string;
-  matched?: User[];
+  matched: User[];
   status: number; // 0 = not found, 1 = matched, 2 = returned, 3 = canceled
   
   constructor (id: string, owner: User, tx: string, name: string, description: string, category: string, date: number, location: string) {
@@ -133,6 +133,7 @@ collection Lost {
     this.category = category;
     this.date = date;
     this.location = location;
+    this.matched = [];
     this.status = 0;
   }
 
@@ -156,7 +157,7 @@ collection Lost {
     this.matched.push(matcher);
   }
   
-  @index(tx);
+  @index(tx, owner, finder);
 }
 
 @public
@@ -171,7 +172,7 @@ collection Found {
   category:string;
   date: number;
   location: string;
-  matched?: User[];
+  matched: User[];
   status: number; // 0 = found, 1 = matched, 2 = returned, 3 = canceled
   
   constructor (id: string, finder: User, tx: string, name: string, description: string, category: string, date: number, location: string) {
@@ -184,6 +185,7 @@ collection Found {
     this.category = category;
     this.date = date;
     this.location = location;
+    this.matched = [];
     this.status = 0;
   }
 
@@ -207,22 +209,7 @@ collection Found {
     this.matched.push(matcher);
   }
   
-  @index(tx);
-}
-
-@public
-collection FoundMatched {
-  id: string;
-  publicKey: PublicKey;
-  finder: User;
-  foundId: string;
-
-  constructor (id: string, finder: User, foundId: string) {
-    this.id = id;
-    this.publicKey = ctx.publicKey;
-    this.finder = finder;
-    this.foundId = foundId;
-  }
+  @index(tx, finder, owner);
 }
 
 @public
@@ -294,3 +281,77 @@ collection User {
     this.linkedin.username = username;
   }
 }`;
+
+export const ATST_ABI = [
+  { stateMutability: "nonpayable", type: "constructor", inputs: [] },
+  {
+    type: "event",
+    anonymous: false,
+    inputs: [
+      {
+        name: "creator",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "about",
+        internalType: "address",
+        type: "address",
+        indexed: true,
+      },
+      { name: "key", internalType: "bytes32", type: "bytes32", indexed: true },
+      { name: "val", internalType: "bytes", type: "bytes", indexed: false },
+    ],
+    name: "AttestationCreated",
+  },
+  {
+    stateMutability: "nonpayable",
+    type: "function",
+    inputs: [
+      {
+        name: "_attestations",
+        internalType: "struct AttestationStation.AttestationData[]",
+        type: "tuple[]",
+        components: [
+          { name: "about", internalType: "address", type: "address" },
+          { name: "key", internalType: "bytes32", type: "bytes32" },
+          { name: "val", internalType: "bytes", type: "bytes" },
+        ],
+      },
+    ],
+    name: "attest",
+    outputs: [],
+  },
+  {
+    stateMutability: "nonpayable",
+    type: "function",
+    inputs: [
+      { name: "_about", internalType: "address", type: "address" },
+      { name: "_key", internalType: "bytes32", type: "bytes32" },
+      { name: "_val", internalType: "bytes", type: "bytes" },
+    ],
+    name: "attest",
+    outputs: [],
+  },
+  {
+    stateMutability: "view",
+    type: "function",
+    inputs: [
+      { name: "", internalType: "address", type: "address" },
+      { name: "", internalType: "address", type: "address" },
+      { name: "", internalType: "bytes32", type: "bytes32" },
+    ],
+    name: "attestations",
+    outputs: [{ name: "", internalType: "bytes", type: "bytes" }],
+  },
+  {
+    stateMutability: "view",
+    type: "function",
+    inputs: [],
+    name: "version",
+    outputs: [{ name: "", internalType: "string", type: "string" }],
+  },
+];
+
+export const ATST_ADDR = "0xEE36eaaD94d1Cc1d0eccaDb55C38bFfB6Be06C77";

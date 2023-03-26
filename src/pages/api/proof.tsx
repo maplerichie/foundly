@@ -31,10 +31,10 @@ export default async function handler(
       res.status(500).json({ message: "Server error" });
       return;
     }
-    const { itemId } = fields;
-    fs.rename(files.image.filepath, "./public/items/" + itemId, (error) => {
+    const { itemId, owner, proofId } = fields;
+    fs.rename(files.image.filepath, "./public/proofs/" + proofId, (error) => {
       if (error) {
-        console.log(`Report rename error:`, error);
+        console.log(`Proof rename error:`, error);
         res.status(422).json({ message: error });
         return;
       }
@@ -45,7 +45,7 @@ export default async function handler(
     if (dataError) {
       res.status(422).json({ message: error });
     } else {
-      res.status(201).json({ message: "Report created!" });
+      res.status(201).json({ message: "Proof created!" });
     }
   });
   return;

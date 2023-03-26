@@ -156,7 +156,7 @@ export default function Report() {
       });
       const tx = await writeContract(prepareTx);
       setStatusText("Waiting for confirmation...");
-      tx.wait(3).then(async (receipt) => {
+      tx.wait().then(async (receipt) => {
         setStatusText("Please sign the message...");
         publicDb.signer(async (data: string) => {
           const accounts = await eth.requestAccounts();

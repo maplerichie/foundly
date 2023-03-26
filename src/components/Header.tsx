@@ -6,6 +6,7 @@ import { Menu, Transition } from "@headlessui/react";
 import { useAccount, useDisconnect } from "wagmi";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
+import * as PushAPI from "@pushprotocol/restapi";
 
 export function Header() {
   const router = useRouter();
@@ -29,6 +30,14 @@ export function Header() {
     },
   ]);
 
+  const fetchNotifs = async () => {
+    const notifications = await PushAPI.user.getFeeds({
+      user: "eip155:42:" + address,
+    });
+
+    console.log("Notifications: \n", notifications);
+  };
+
   const handleNotificationClick = () => {
     setUnreadCount(0);
     setShowNotifications(true);
@@ -49,6 +58,7 @@ export function Header() {
   useEffect(() => {
     if (isConnected) {
       console.log("Connected:", address);
+      fetchNotifs();
 
       fetch(`/api/user/${address}`, {
         method: "GET",

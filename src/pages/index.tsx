@@ -14,7 +14,8 @@ function Page() {
               </h1>
               <p className="text-xl lg:text-2xl mb-8">
                 Our platform makes it easy to report and search for lost items,
-                ensuring that you can find what you've lost quickly and easily.
+                ensuring that you can find what you&apos;ve lost quickly and
+                easily.
               </p>
             </div>
             <div className="lg:w-1/2">
@@ -60,8 +61,8 @@ function Page() {
                 <div className="text-left">
                   <h3 className="text-xl font-bold mb-2">Reclaim Your Item</h3>
                   <p className="text-lg">
-                    Once your item has been found, you'll receive a notification
-                    and be able to reclaim it easily.
+                    Once your item has been found, you&apos;ll receive a
+                    notification and be able to reclaim it easily.
                   </p>
                 </div>
               </div>
@@ -90,7 +91,7 @@ function Page() {
                     </h3>
                     <p className="text-gray-600">
                       A lost backpack was found near the central station. If
-                      it's yours, please contact us.
+                      it&apos;s yours, please contact us.
                     </p>
                   </div>
                 </div>
@@ -109,8 +110,8 @@ function Page() {
                       Lost Wallet Found
                     </h3>
                     <p className="text-gray-600">
-                      A lost wallet was found in the park. If it's yours, please
-                      contact us.
+                      A lost wallet was found in the park. If it&apos;s yours,
+                      please contact us.
                     </p>
                   </div>
                 </div>
@@ -127,8 +128,8 @@ function Page() {
                   <div className="p-4">
                     <h3 className="text-xl font-bold mb-2">Lost Phone Found</h3>
                     <p className="text-gray-600">
-                      A lost phone was found at the mall. If it's yours, please
-                      contact us.
+                      A lost phone was found at the mall. If it&apos;s yours,
+                      please contact us.
                     </p>
                   </div>
                 </div>
@@ -233,13 +234,13 @@ function Page() {
             <p className="text-lg leading-8 mb-8">
               Our lost and found platform was created with the goal of making it
               easier for people to report and find lost items. We believe that
-              everyone should be able to find what they've lost quickly and
+              everyone should be able to find what they&apos;ve lost quickly and
               easily, without the stress and frustration that often comes with
-              losing something important. That's why we've created a platform
-              that is user-friendly, intuitive, and effective, allowing you to
-              report lost items with just a few clicks and search for them with
-              ease. Whether you've lost your keys, your phone, or even your pet,
-              we're here to help you find it.
+              losing something important. That&apos;s why we&apos;ve created a
+              platform that is user-friendly, intuitive, and effective, allowing
+              you to report lost items with just a few clicks and search for
+              them with ease. Whether you&apos;ve lost your keys, your phone, or
+              even your pet, we&apos;re here to help you find it.
             </p>
             {/* <div className="flex justify-center">
               <Link
@@ -316,7 +317,7 @@ function Page() {
                 <div className="bg-white rounded-lg shadow-lg p-8">
                   <h3 className="text-xl font-bold mb-4">Get in Touch</h3>
                   <p className="text-gray-600">
-                    Have questions or feedback about our platform? We'd love to
+                    Have questions or feedback about our platform? We&apos;d love to
                     hear from you! Get in touch using the contact form, or reach
                     out to us directly using the information below.
                   </p>

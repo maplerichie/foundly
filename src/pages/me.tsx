@@ -2,11 +2,18 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { Layout } from "../components";
 import { FaTwitter, FaDiscord, FaLinkedin } from "react-icons/fa";
-import { publicDb, publicUser } from "../helpers/polybase";
+import { publicDb, publicLost, publicUser } from "../helpers/polybase";
 import * as eth from "@polybase/eth";
 import { useAccount } from "wagmi";
 import Cookies from "js-cookie";
 import { Item } from "../interface";
+import { readAttestations } from "@eth-optimism/atst";
+import { BigNumber, constants, utils } from "ethers";
+import { attestationStation, createValue } from "../helpers/atst";
+import { FaSmile } from "react-icons/fa";
+import { BsEmojiSmileUpsideDown } from "react-icons/bs";
+import Link from "next/link";
+import { toSvg } from "jdenticon";
 
 export default function Profile() {
   const router = useRouter();
@@ -33,10 +40,11 @@ export default function Profile() {
       username: "",
     },
   ]);
-  const [lostListings, setLostListings] = useState<Item[]>([]);
-  const [foundListings, setFoundListings] = useState<Item[]>([]);
-  const [scoreEarned, setScoreEarned] = useState(0);
-  const [bountyEarned, setBountyEarned] = useState(0);
+  const [lostListings, setLostListings] = useState<any[]>([]);
+  const [foundListings, setFoundListings] = useState<any[]>([]);
+  const [caseClosed, setCaseClosed] = useState(0);
+  const [apeEarned, setApeEarned] = useState("0");
+  const [attestations, setAttestations] = useState<any[]>([]);
 
   const initProfile = async (event: any) => {
     setInitError("");
@@ -68,6 +76,46 @@ export default function Profile() {
     }
   };
 
+  const processEvents = async (events: any) => {
+    let temp: any[] = [];
+    let totalApes = BigNumber.from(0);
+    events.map((x: any) => {
+      temp.push({
+        hash: x.transactionHash,
+        creator: x.args.creator,
+        value: x.args.val,
+      });
+      totalApes = totalApes.add(x.args.val);
+    });
+    setCaseClosed(temp.length);
+    setApeEarned(utils.formatUnits(totalApes, 18));
+    setAttestations(temp);
+  };
+
+  const fetchAttestations = async () => {
+    try {
+      const aboutMe = attestationStation.filters.AttestationCreated(
+        null,
+        address,
+        null,
+        null
+      );
+      const events = await attestationStation.queryFilter(aboutMe);
+      processEvents(events);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  // const fetchListings = async () => {
+  //   const { data } = await publicLost
+  //     .where("finder", "==", publicUser.record(userId))
+  //     .get();
+  //   console.log(data);
+  //   // setLostListings(lost);
+  //   setFoundListings(data);
+  // };
+
   const fetchUser = async (id: string) => {
     const { data } = await publicUser.record(id).get();
     if ("name" in data) {
@@ -76,6 +124,16 @@ export default function Profile() {
     if ("bio" in data) {
       setBio(data.bio);
     }
+    const amount = "11.123";
+    let rewardAmount = 0;
+    if (amount) {
+      rewardAmount = parseFloat(amount);
+      if (isNaN(rewardAmount) || rewardAmount <= 0) {
+        console.log("Please enter a valid amount");
+        return;
+      }
+    }
+    await fetchAttestations();
   };
 
   useEffect(() => {
@@ -154,7 +212,7 @@ export default function Profile() {
                   ))}
                 </ul>
               </div>
-              <div className="mt-5">
+              {/* <div className="mt-5">
                 <h3 className="text-lg font-medium text-gray-900">
                   Lost Listings
                 </h3>
@@ -191,22 +249,56 @@ export default function Profile() {
                     No found listings found.
                   </p>
                 )}
-              </div>
+              </div> */}
               <div className="mt-5">
                 <h3 className="text-lg font-medium text-gray-900">
-                  Score Earned
+                  Case Closed
                 </h3>
                 <p className="mt-2 max-w-xl text-sm text-gray-500">
-                  {scoreEarned}
+                  {caseClosed}
                 </p>
               </div>
               <div className="mt-5">
                 <h3 className="text-lg font-medium text-gray-900">
-                  Bounty Earned
+                  Ape Earned
                 </h3>
                 <p className="mt-2 max-w-xl text-sm text-gray-500">
-                  {bountyEarned}
+                  {apeEarned}
                 </p>
+              </div>
+              <div className="mt-5">
+                <h3 className="text-lg font-medium text-gray-900">
+                  Attestations
+                </h3>
+                {attestations.length > 0 ? (
+                  <div className="mt-2 max-w-xl grid grid-cols-6 gap-4 text-gray-500">
+                    {attestations.map((atte, index) => (
+                      <Link
+                        target={"_blank"}
+                        href={
+                          "https://goerli-optimism.etherscan.io/tx/" + atte.hash
+                        }
+                        key={index}
+                        className="flex flex-col "
+                      >
+                        <svg
+                          viewBox="0 0 160 160"
+                          className="rounded-full mb-2"
+                          dangerouslySetInnerHTML={{
+                            __html: toSvg(atte.creator, 160),
+                          }}
+                        ></svg>
+                        <p className="max-w-xs overflow-hidden text-overflow-ellipsis">
+                          {utils.commify(utils.formatUnits(atte.value, 18))}
+                        </p>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-2 max-w-xl text-gray-500 text-5xl flex items-center justify-center">
+                    <BsEmojiSmileUpsideDown />
+                  </p>
+                )}
               </div>
             </div>
           </div>
