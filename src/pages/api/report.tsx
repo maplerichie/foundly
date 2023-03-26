@@ -32,7 +32,7 @@ export default async function handler(
       return;
     }
     const { itemId } = fields;
-    fs.rename(files.image.filepath, "./public/images/" + itemId, (error) => {
+    fs.rename(files.image.filepath, "./public/items/" + itemId, (error) => {
       if (error) {
         console.log(`Rename error:`, error);
         res.status(422).json({ message: error });

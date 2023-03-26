@@ -83,7 +83,7 @@ export const Card = ({ item, type }: Props) => {
       >
         <div className="relative w-full h-0" style={{ paddingBottom: "100%" }}>
           <Image
-            src={`/images/${item.id}`}
+            src={`/items/${item.id}`}
             alt={item.name}
             width={300}
             height={300}
@@ -122,7 +122,7 @@ export const Card = ({ item, type }: Props) => {
               </div>
               <div className="flex flex-col items-center mb-6">
                 <Image
-                  src={`/images/${item.id}`}
+                  src={`/items/${item.id}`}
                   alt={item.name}
                   width={360}
                   height={360}
