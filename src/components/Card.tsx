@@ -386,9 +386,7 @@ export const Card = ({ item, type }: Props) => {
                     </div>
                   </>
                 ) : (
-                  <>
-                    <button onClick={test}>Test me</button>
-                  </>
+                  <>{/* <button onClick={test}>Test me</button> */}</>
                 ))}
               {itemError && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 my-2 rounded relative mt-4 ">
