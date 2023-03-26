@@ -4,15 +4,12 @@ import { optimismGoerli, optimism } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 
 const { chains, provider, webSocketProvider } = configureChains(
-  [
-    optimism,
-    ...(process.env.NODE_ENV === "development" ? [optimismGoerli] : []),
-  ],
+  [process.env.NODE_ENV === "development" ? optimismGoerli : optimism],
   [publicProvider()]
 );
 
 const { connectors } = getDefaultWallets({
-  appName: "DeLost",
+  appName: "Foundly",
   chains,
 });
 

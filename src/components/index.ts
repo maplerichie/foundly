@@ -1,4 +1,4 @@
-export { Account } from "./Account";
+export { Avatar } from "./Avatar";
 export { Header } from "./Header";
 export { Footer } from "./Footer";
 export { Layout } from "./Layout";
