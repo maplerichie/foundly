@@ -3,6 +3,7 @@ import formidable from "formidable";
 import fs from "fs";
 import { sendNotification } from "../../helpers/push";
 import { decryptWithAES } from "../../helpers/crypto";
+import { uploadImage } from "../../helpers/imagekit";
 
 export const config = {
   api: {
@@ -21,7 +22,7 @@ export default async function handler(
 
   const form = new formidable.IncomingForm({
     keepExtensions: true,
-    uploadDir: "./",
+    uploadDir: "./temp/",
     allowEmptyFiles: false,
     maxFiles: 1,
     maxFileSize: 2.5 * 1024 * 1024,
@@ -35,26 +36,28 @@ export default async function handler(
     }
     const { itemId, owner, proofId } = fields;
 
-    const to = decryptWithAES(String(owner));
-    await sendNotification(
-      "You have a new proof!",
-      "New Proof",
-      "You have a new proof!",
-      to
-    );
-    fs.rename(files.image.filepath, "./public/proofs/" + proofId, (error) => {
-      if (error) {
-        console.log(`Proof rename error:`, error);
-        res.status(422).json({ message: error });
-        return;
-      }
-    });
-
     const dataError = !files ? "Please upload image" : null;
-
     if (dataError) {
       res.status(422).json({ message: error });
+    }
+
+    const image = fs.readFileSync(files.image.filepath);
+    const uploadStatus = await uploadImage(
+      image.toString("base64"),
+      "/proofs/",
+      proofId
+    );
+    if (!uploadStatus) {
+      res.status(422).json({ message: error });
     } else {
+      const to = decryptWithAES(String(owner));
+      await sendNotification(
+        "You have a new proof!",
+        "New Proof",
+        "You have a new proof!",
+        to
+      );
+      fs.unlinkSync(files.image.filepath);
       res.status(201).json({ message: "Proof created!" });
     }
   });

@@ -43,9 +43,10 @@ export async function symmetricDecryptString(
   return str;
 }
 
+// const namespace =
+// "pk/0xd6e3e92d63e82f2bd33960a842c7804eafa73e0be38d5e0b79e0f8a96919c657a62c3687af5fa824afdc4b3da80c3df38c64de5c473f82bf8eb80090a06483a4/testnet";
 const namespace =
-  "pk/0xd6e3e92d63e82f2bd33960a842c7804eafa73e0be38d5e0b79e0f8a96919c657a62c3687af5fa824afdc4b3da80c3df38c64de5c473f82bf8eb80090a06483a4/testnet";
-// const namespace = "pk/0xd6e3e92d63e82f2bd33960a842c7804eafa73e0be38d5e0b79e0f8a96919c657a62c3687af5fa824afdc4b3da80c3df38c64de5c473f82bf8eb80090a06483a4/Foundly"
+  "pk/0xd6e3e92d63e82f2bd33960a842c7804eafa73e0be38d5e0b79e0f8a96919c657a62c3687af5fa824afdc4b3da80c3df38c64de5c473f82bf8eb80090a06483a4/Foundly";
 
 export const db = new Polybase({
   defaultNamespace: namespace,

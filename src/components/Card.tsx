@@ -296,7 +296,7 @@ export const Card = ({ item, type }: Props) => {
       >
         <div className="relative w-full h-0" style={{ paddingBottom: "100%" }}>
           <Image
-            src={`/items/${item.id}`}
+            src={`https://ik.imagekit.io/vyfilo2gd/items/${item.id}`}
             alt={item.name}
             width={300}
             height={300}
@@ -335,7 +335,7 @@ export const Card = ({ item, type }: Props) => {
               </div>
               <div className="flex flex-col items-center mb-6">
                 <Image
-                  src={`/items/${item.id}`}
+                  src={`https://ik.imagekit.io/vyfilo2gd/items/${item.id}`}
                   alt={item.name}
                   width={360}
                   height={360}
@@ -464,7 +464,7 @@ export const Card = ({ item, type }: Props) => {
               <div className="flex items-center mb-6 justify-between">
                 <div className="flex flex-col mr-4">
                   <Image
-                    src={`/items/${item.id}`}
+                    src={`https://ik.imagekit.io/vyfilo2gd/items/${item.id}`}
                     alt={item.name}
                     width={360}
                     height={360}
@@ -473,7 +473,7 @@ export const Card = ({ item, type }: Props) => {
                 </div>
                 <div className="flex flex-col mr-4">
                   <Image
-                    src={`/proofs/${proofId}`}
+                    src={`https://ik.imagekit.io/vyfilo2gd/proofs/${proofId}`}
                     alt={item.name}
                     width={360}
                     height={360}

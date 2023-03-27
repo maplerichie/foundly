@@ -51,3 +51,4 @@ public/proofs/*
 .env.development
 
 test.js
+test.tsx

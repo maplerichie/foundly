@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import formidable from "formidable";
 import fs from "fs";
+import { uploadImage } from "../../helpers/imagekit";
 
 export const config = {
   api: {
@@ -19,7 +20,7 @@ export default async function handler(
 
   const form = new formidable.IncomingForm({
     keepExtensions: true,
-    uploadDir: "./",
+    uploadDir: "./temp/",
     allowEmptyFiles: false,
     maxFiles: 1,
     maxFileSize: 2.5 * 1024 * 1024,
@@ -32,17 +33,19 @@ export default async function handler(
       return;
     }
     const { itemId } = fields;
-    fs.rename(files.image.filepath, "./public/items/" + itemId, (error) => {
-      if (error) {
-        console.log(`Report rename error:`, error);
-        res.status(422).json({ message: error });
-        return;
-      }
-    });
 
     const dataError = !files ? "Please upload image" : null;
-
     if (dataError) {
+      res.status(422).json({ message: error });
+    }
+
+    const image = fs.readFileSync(files.image.filepath);
+    const uploadStatus = await uploadImage(
+      image.toString("base64"),
+      "/items/",
+      itemId
+    );
+    if (!uploadStatus) {
       res.status(422).json({ message: error });
     } else {
       res.status(201).json({ message: "Report created!" });
